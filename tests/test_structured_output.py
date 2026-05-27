@@ -473,6 +473,18 @@ class TestBuildJsonSystemPrompt:
         assert result is not None
         assert "output" in result
 
+    def test_json_schema_missing_spec_does_not_crash(self):
+        """A client sending type=json_schema without a json_schema field
+        (e.g. schema placed at the top level) must degrade gracefully, not 500."""
+        for response_format in (
+            {"type": "json_schema"},
+            {"type": "json_schema", "json_schema": None},
+            ResponseFormat(type="json_schema"),
+        ):
+            result = build_json_system_prompt(response_format)
+            assert result is not None
+            assert "valid JSON" in result
+
 
 class TestInjectJsonInstruction:
     """Tests for _inject_json_instruction function in server."""
